@@ -9,9 +9,7 @@
     "start:dev": "nodemon api/index.ts",
     "start": "vercel dev",
     "test": "jest --detectOpenHandles",
-    "prepare": "husky install",
-    "commitlint": "commitlint --edit",
-    "build": "npx tsc"
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
