@@ -1,16 +1,22 @@
 import passport from 'passport'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
+import { User, IUser } from '../models/user'
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 const API_BASE_URL = process.env.API_BASE_URL
 
-passport.serializeUser(function (user, done) {
-  done(null, user)
+passport.serializeUser((user: Express.User, done) => {
+  done(null, (user as IUser).id)
 })
 
-passport.deserializeUser(function (obj, done) {
-  done(null, obj as any)
+passport.deserializeUser(async (id: string, done) => {
+  try {
+    const user = await User.findById(id)
+    done(null, user)
+  } catch (error) {
+    done(error, null)
+  }
 })
 
 if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
@@ -29,8 +35,17 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
         done: any
       ) {
         try {
-          console.info("user's google profile: ", profile)
-          return done(null)
+          let user = await User.findOne({ googleId: profile.id })
+
+          if (!user) {
+            user = await User.create({
+              googleId: profile.id,
+              email: profile.emails[0].value,
+              name: profile.displayName,
+            })
+          }
+
+          return done(null, user)
         } catch (error) {
           return done(error, null)
         }
