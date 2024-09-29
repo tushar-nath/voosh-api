@@ -1,0 +1,9 @@
+node_modules
+.DS_Store
+dist-ssr
+*.local
+creds.js
+.vercel
+.env
+data
+dist
